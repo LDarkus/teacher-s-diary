@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Discipline;
 use App\Models\Group;
+use App\Models\Student;
 use Illuminate\Http\Request;
 
 class GroupController extends Controller
@@ -14,7 +16,12 @@ class GroupController extends Controller
      */
     public function index()
     {
-        //
+        $title="Список групп";
+
+        $groups = Group::with("disciplines")->get();
+
+
+        return view("group.index",compact("groups","title"));
     }
 
     /**
@@ -22,9 +29,15 @@ class GroupController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        return view("groups.create");
+
+
+
+        $title="Добавление студентов в группу";
+        $groups=Group::all();
+
+        return view("group.create",compact("groups","title"));
     }
 
     /**
@@ -35,7 +48,14 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        dd($request);
+        $student = new Student();
+        $student->FIO=$request->input("StudentName");
+        $student->Group_id=$request->input("group_id");
+        $student->save();
+        $group_id=$request->input("group_id");
+        return redirect()->route("groups.create",compact("group_id"));
     }
 
     /**
@@ -46,7 +66,9 @@ class GroupController extends Controller
      */
     public function show(Group $group)
     {
-        //
+
+        $title="Информация об группе";
+        return view("group.show",compact("title","group"));
     }
 
     /**
@@ -80,6 +102,7 @@ class GroupController extends Controller
      */
     public function destroy(Group $group)
     {
-        //
+        $group->delete();
+        return redirect()->back();
     }
 }

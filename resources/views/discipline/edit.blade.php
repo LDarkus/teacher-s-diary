@@ -1,13 +1,14 @@
 @extends('layout')
 @section('content')
     <div class="container mt-4">
-        <form action="{{ route('disciplines.store') }}" method="post">
+        <form action="{{ route('disciplines.update', $discipline->id) }}" method="post">
             @csrf
-            @method('post')
+            @method('put')
             <div class="mt-3 w-50">
                 <label for="" class="form-label">Наименование дисциплины</label>
-                <input type="text" class="form-control" name="name" id="" aria-describedby="helpId"
-                    placeholder="Введите наименование дисциплины">
+                <input type="text" class="form-control" value="{{ $discipline->name }}" name="name" id=""
+                    aria-describedby="helpId" placeholder="Введите наименование дисциплины">
+
 
                 <div class="select mt-2">
                     <div>
@@ -17,13 +18,14 @@
                         <select class="selectpicker" name="groups[]" multiple
                             aria-placeholder="Выберите группы для добавления">
                             @foreach ($groups as $group)
-                                <option value="{{ $group->id }}">{{ $group->name }}</option>
+                                <option @if ($discipline->groups->contains($group->id)) selected @endif value="{{ $group->id }}">
+                                    {{ $group->name }}</option>
                             @endforeach
 
                         </select>
                     </div>
                     <div>
-                        <button type="submit" class="btn btn-primary mt-3">Добавить</button>
+                        <button type="submit" class="btn btn-success mt-3">Изменить</button>
                     </div>
                 </div>
             </div>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DisciplineController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\StudentController;
 use App\Models\Discipline;
 use App\Models\Student;
 use App\Models\Work;
@@ -19,5 +20,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [DisciplineController::class, "index"]);
-Route::resource("disciplines", DisciplineController::class)->withTrashed();
+Route::resource("disciplines", DisciplineController::class);
+Route::delete("disciplines/{discipline}/{group}",[DisciplineController::class,"destroyGroup"])->name("disciplines.destroyGroup");
 Route::resource('groups', GroupController::class);
+Route::resource("students", Student::class);

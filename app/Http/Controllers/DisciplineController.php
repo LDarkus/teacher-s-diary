@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Discipline;
+use App\Models\Discipline_Group;
+use App\Models\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Laravel\Ui\Presets\React;
 
 class DisciplineController extends Controller
 {
@@ -14,8 +18,11 @@ class DisciplineController extends Controller
      */
     public function index()
     {
-        $disciplines = Discipline::all();
-        return view("discipline.index",compact("disciplines"));
+        $title="Список дисциплин";
+
+        $disciplines = Discipline::with("groups")->get();
+
+        return view("discipline.index", compact("disciplines","title"));
     }
 
     /**
@@ -25,7 +32,9 @@ class DisciplineController extends Controller
      */
     public function create()
     {
-        //
+        $groups=Group::all();
+        $title="Формирование новой дисциплины";
+        return view("discipline.create",compact("title","groups"));
     }
 
     /**
@@ -36,7 +45,26 @@ class DisciplineController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $discipline = new Discipline();
+
+
+        $discipline->name=$request->input("name");
+        $discipline->save();
+
+
+        if($request->groups!=null){
+            foreach($request->groups as $group_id)
+        {
+            $discipline_group= new Discipline_Group();
+            $discipline_group->discipline_id=$discipline->id;
+            $discipline_group->group_id=$group_id;
+            $discipline_group->save();
+
+        }
+        }
+
+        return redirect()->route("disciplines.index");
     }
 
     /**
@@ -45,9 +73,10 @@ class DisciplineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Discipline $discipline)
     {
-        dd("dsds");
+        $title="Подробная информация о дисциплине";
+        return view("discipline.show",compact("title","discipline"));
     }
 
     /**
@@ -56,9 +85,11 @@ class DisciplineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Discipline $discipline)
     {
-        //
+        $title="Редактирование дисциплины";
+        $groups=Group::all();
+        return view("discipline.edit",compact("discipline","title","groups"));
     }
 
     /**
@@ -68,9 +99,23 @@ class DisciplineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Discipline $discipline)
     {
-        //
+
+
+        $discipline->name=$request->input("name");
+        $discipline->save();
+
+        DB::delete('delete from discipline_group where discipline_id = ?', [$discipline->id]);
+        foreach($request->groups as $group_id)
+        {
+            $discipline_group= new Discipline_Group();
+            $discipline_group->discipline_id=$discipline->id;
+            $discipline_group->group_id=$group_id;
+            $discipline_group->save();
+
+        }
+        return redirect("/");
     }
 
     /**
@@ -79,8 +124,19 @@ class DisciplineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Discipline $discipline)
     {
-        dd("dd");
+
+        $discipline->delete();
+        return redirect('/');
+    }
+
+    public function destroyGroup(Discipline $discipline, Group $group)
+    {
+        dd($group);
+        $group=Group::find($group->id);
+        DB::delete('delete from discipline_group where group_id =? and discipline_id=?', [$group->id,$discipline->id]);
+
+        return redirect()->back();
     }
 }

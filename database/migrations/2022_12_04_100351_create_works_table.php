@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('works', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("Discipline_id")->constrained("disciplines")->onDelete("cascade");
+            $table->foreignId("discipline_id")->nullable()->constrained("disciplines")->onDelete("cascade");
             $table->string("typeWork");
             $table->string("name");
             $table->date("deadline");

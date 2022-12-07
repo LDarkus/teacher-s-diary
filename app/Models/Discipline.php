@@ -8,4 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Discipline extends Model
 {
     use HasFactory;
+    public function groups(){
+        return $this->belongsToMany(Group::class,"discipline_group","discipline_id","group_id");
+    }
 }
