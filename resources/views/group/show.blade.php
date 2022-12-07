@@ -6,7 +6,7 @@
                 <h3>Наименонование группы: {{ $group->name }}</h3>
             </div>
             <div class="col-8 d-flex justify-content-end align-items-end">
-                <a class="btn btn-primary " href="{{ route('groups.create') }}">Добавить студента</a>
+                <a class="btn btn-primary " href="{{ route('students.create',$group) }}">Добавить студента</a>
             </div>
         </div>
         <div class="row">
@@ -27,7 +27,7 @@
                         <td>{{ $student->name }}</a></td>
 
                         <td>
-                            <form class="text-center" method="POST" action="{{ route('groups.destroy', $group) }}">
+                            <form class="text-center" method="POST" action="{{ route('students.destroy', $group) }}">
                                 @csrf
                                 @method('DELETE')
                                 <input type="submit" class="btn btn-outline-danger " value="Удалить студента из группы">

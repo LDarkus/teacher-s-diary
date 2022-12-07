@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Group;
 use App\Models\Student;
 use Illuminate\Http\Request;
 
@@ -24,7 +25,7 @@ class StudentController extends Controller
      */
     public function create()
     {
-        //
+        dd('Меня создают еху');
     }
 
     /**
@@ -80,7 +81,9 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
+        dd($student);
         $student->delete();
-        return redirect()->back();
+        dd("удалил");
+        return redirect()->route("groups.show");
     }
 }
