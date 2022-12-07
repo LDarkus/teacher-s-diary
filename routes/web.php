@@ -23,4 +23,4 @@ Route::get('/', [DisciplineController::class, "index"]);
 Route::resource("disciplines", DisciplineController::class);
 Route::delete("disciplines/{discipline}/{group}",[DisciplineController::class,"destroyGroup"])->name("disciplines.destroyGroup");
 Route::resource('groups', GroupController::class);
-Route::resource("students", Student::class);
+Route::resource("students", StudentController::class);

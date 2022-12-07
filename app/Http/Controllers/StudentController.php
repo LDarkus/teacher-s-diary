@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Group;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Laravel\Ui\Presets\React;
 
 class StudentController extends Controller
 {
@@ -23,9 +24,9 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        dd('Меня создают еху');
+        dd($request);
     }
 
     /**
@@ -36,7 +37,13 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $student=new Student();
+        $student->name=$request->studentName;
+        $student->group_id=$request->groupId;
+        $student->save();
+        return redirect()->back();
+
     }
 
     /**
@@ -81,9 +88,8 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
-        dd($student);
+        $group_id=$student->group_id;
         $student->delete();
-        dd("удалил");
-        return redirect()->route("groups.show");
+        return redirect()->route("groups.show",$group_id);
     }
 }
