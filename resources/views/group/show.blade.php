@@ -5,8 +5,8 @@
             <div class="col-4">
                 <h3>Наименонование группы: {{ $group->name }}</h3>
             </div>
-            <form action="{{ route("students.store",$group) }}" class="col-8 d-flex align-items-end justify-content-end" method="post">
-                @method('post')
+            <form action="{{ route("students.store",$group) }}" class="col-8 d-flex align-items-end justify-content-end" method="post" >
+                @method("post")
                 @csrf
                 <input type="hidden" value="{{$group->id}}" name="groupId">
                 <div class="me-3 w-50">

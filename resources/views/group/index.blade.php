@@ -6,7 +6,15 @@
                 <p class="h3">Список групп</p>
             </div>
             <div class="col-8 d-flex justify-content-end align-items-end">
-                <a class="btn btn-primary " href="{{ route('groups.create') }}">Добавить группу</a>
+                <form action="{{ route("groups.store")}}" method="post" enctype="multipart/form-data">
+                    @csrf
+                    @method("post")
+                    <div class="input-group">
+                        <input type="file" class="form-control" name="file"  >
+                        <button class="btn btn-primary " id="inputGroupFileAddon04">Добавить группу</button>
+                      </div>
+                </form>
+
             </div>
         </div>
         <div class="row">
