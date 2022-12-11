@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CompletedWork;
 use App\Models\Discipline;
 use App\Models\Discipline_Group;
 use App\Models\Group;
@@ -71,8 +72,56 @@ class DisciplineController extends Controller
     public function show(Discipline $discipline)
     {
         $title = "Подробная информация о дисциплине";
-
+        //Сортировка по типам работ
+        $discipline = Discipline::with(['works' => function ($query) {
+            $query->orderBy('typeWork', 'asc');
+        }])->find($discipline->id);
         return view("discipline.show", compact("title", "discipline"));
+    }
+
+
+    public function showWorks(Discipline $discipline, Group $group)
+    {
+
+        /*  foreach ($group->students as $student) {
+            foreach ($student->completedWorks as $work) {
+                dd($work->work);
+            }
+        } */
+        $title = "Оцененивание работ студентов";
+        return view("discipline.showWorks", compact("title", "discipline", "group"));
+    }
+    public function updateWork(Request $request, CompletedWork $completedWork)
+    {
+
+        $tasks_id = $request->tasks;
+
+        $completedWork->comment = $request->input("comment");
+        foreach ($completedWork->tasksProgress as $task) {
+
+            if (isset($tasks_id) && (in_array($task->id, $tasks_id))) {
+                $task->completed = 1;
+            } else {
+                $task->completed = 0;
+            }
+
+            $task->save();
+        }
+
+        if (isset($tasks_id) && (count($completedWork->tasksProgress) == count($tasks_id))) {
+            $completedWork->points = $request->input("points");
+            $completedWork->date_of_completion = $request->input("date_of_completion");
+            $completedWork->completed=1;
+        } else {
+            $completedWork->points = 0;
+            $completedWork->date_of_completion = null;
+            $completedWork->completed=0;
+        }
+
+
+        $completedWork->save();
+
+        return redirect()->back();
     }
 
     /**
@@ -100,13 +149,11 @@ class DisciplineController extends Controller
 
 
         $discipline->name = $request->input("name");
+        $d = $discipline->groups()->sync($request->groups);
+        //Нужно подумать как добавлять в промежуточные таблице при добавлении удалиении группы
+
         $discipline->save();
 
-        DB::delete('delete from discipline_group where discipline_id = ?', [$discipline->id]);
-        foreach ($request->groups as $group_id) {
-            $discipline->groups()->save(Group::find($group_id));
-
-        }
         return redirect("/");
     }
 

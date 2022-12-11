@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CompletedWork;
 use App\Models\Discipline;
+use App\Models\Group;
 use App\Models\Task;
 use App\Models\Work;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpWord\Writer\Word2007\Part\Rels;
+
 
 class WorkController extends Controller
 {
@@ -41,23 +45,53 @@ class WorkController extends Controller
      */
     public function store(Request $request)
     {
+        $discipline=Discipline::find($request->input("discipline_id"));
+
 
         $tasks = explode("\n", str_replace("\r", "", $request->input("tasks")));
         $tasks = array_filter($tasks);
         $work = new Work();
         $work->discipline_id=$request->input("discipline_id");
+
         $work->name=$request->input("nameWork");
         $work->typeWork=$request->input("typeWork");
         $work->max_points=$request->input("scoreWork");
         $work->deadline=$request->input("deadline");
         $work->save();
-
+        $discipline->refresh();
+        $works=$discipline->works;
         foreach($tasks as $t){
 
             $task= new Task();
             $task->name=$t;
-            $work->tasks()->save($task);
+            $tasks_id[]=$work->tasks()->save($task);
+
+
         }
+
+        foreach($discipline->groups as $group){
+            foreach($group->students as $student){
+                $student->works()->sync($works);
+                foreach($student->completedWorks as $cWork){
+
+
+                    if($cWork->work_id==$work->id)
+                    {
+
+                        foreach($tasks_id as $tId)
+                        {
+
+                            DB::insert('insert into task_progress (task_id, work_id) values (?, ?)', [$tId->id, $cWork->id]);
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+
+
 
         return redirect()->route("disciplines.show", ["discipline"=>$work->discipline_id]);
 

@@ -5,10 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Task extends Model
+class TaskProgress extends Model
 {
     use HasFactory;
-    public function taskProgress(){
-        return $this->hasOne(TaskProgress::class);
-    }
 }

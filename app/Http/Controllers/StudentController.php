@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CompletedWork;
 use App\Models\Group;
 use App\Models\Student;
 use Illuminate\Http\Request;
@@ -16,7 +17,6 @@ class StudentController extends Controller
      */
     public function index()
     {
-
     }
 
     /**
@@ -37,13 +37,16 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-
-        $student=new Student();
-        $student->name=$request->studentName;
-        $student->group_id=$request->groupId;
+        $student = new Student();
+        $student->name = $request->studentName;
+        $student->group_id = $request->groupId;
         $student->save();
-        return redirect()->back();
+        $student->addInCompletedWork($request->groupId);
 
+
+
+
+        return redirect()->back();
     }
 
     /**
@@ -88,8 +91,8 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
-        $group_id=$student->group_id;
+        $group_id = $student->group_id;
         $student->delete();
-        return redirect()->route("groups.show",$group_id);
+        return redirect()->route("groups.show", $group_id);
     }
 }

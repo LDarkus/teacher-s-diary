@@ -13,4 +13,7 @@ class Work extends Model
     {
         return $this->hasMany(Task::class);
     }
+    public function student(){
+        return $this->belongsToMany(Work::class,"completed_works","work_id","student_id");
+    }
 }

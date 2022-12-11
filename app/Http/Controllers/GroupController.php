@@ -68,8 +68,9 @@ class GroupController extends Controller
             foreach ($arrays as $e) {
                 if (get_class($e) === 'PhpOffice\PhpWord\Element\TextRun') {
                     foreach ($e->getElements() as $text) {
-                        $groupName = $text->getText();
+                        $groupName.= $text->getText();
                     }
+
                 } elseif (get_class($e) === 'PhpOffice\PhpWord\Element\Table') {
                     $rows = $e->getRows();
                     $countRows = 0;
@@ -102,12 +103,14 @@ class GroupController extends Controller
         }
 
         $split   = preg_split('/\s+/', $tableText);
+
         $groupName = preg_split('/\s+/', $groupName);
         $chunks = array_chunk($split, 3); // Make groups of 3 words
         $result = array_map(function ($chunk) {
             return implode(' ', $chunk);
         }, $chunks);
         array_pop($result);
+
         $group = new Group();
         $group->name = $groupName[1];
         $group->save();
@@ -115,6 +118,7 @@ class GroupController extends Controller
             $student = new Student();
             $student->name=$studentName;
             $group->students()->save($student);
+            $student->addInCompletedWork($group->id);
         }
 
         return redirect()->back();
@@ -138,6 +142,10 @@ class GroupController extends Controller
         $title = "Информация об группе";
         return view("group.show", compact("title", "group"));
     }
+
+
+
+
 
     /**
      * Show the form for editing the specified resource.

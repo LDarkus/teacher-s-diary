@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DisciplineController::class, "index"]);
 Route::resource("disciplines", DisciplineController::class);
+Route::get("disciplines/{discipline}/{group}",[DisciplineController::class,"showWorks"])->name("disciplines.showWorks");
+Route::put("disciplines/store/{completedWork}",[DisciplineController::class,"updateWork"])->name("disciplines.updateWork");
 Route::delete("disciplines/{discipline}/{group}",[DisciplineController::class,"destroyGroup"])->name("disciplines.destroyGroup");
 Route::resource('groups', GroupController::class);
 Route::resource("students", StudentController::class);

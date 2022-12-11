@@ -3,7 +3,7 @@
     <div class="container mt-4">
         <div class="row">
             <div class="">
-                <p class="h3">Наименонование дисциплины: <u>{{ $discipline->name }}</u></p>
+                <p class="h3">Наименование дисциплины: <u>{{ $discipline->name }}</u></p>
             </div>
 
         </div>
@@ -49,9 +49,11 @@
                                     action="{{ route('works.destroy', ['work' => $work->id]) }}">
                                     @csrf
                                     @method('DELETE')
-                                    <div class="btn-group-vertical"  >
-                                        <a href="{{ route('works.destroy', ['work' => $work->id]) }}" class="btn btn-outline-primary btn-block ">Оценить</a>
-                                        <a href="{{ route('works.edit', ['work' => $work->id]) }}" class="btn btn-outline-success  btn-block ">Изменить</a>
+                                    <div class="btn-group-vertical">
+                                        <a href="{{ route('works.destroy', ['work' => $work->id]) }}"
+                                            class="btn btn-outline-primary btn-block ">Оценить</a>
+                                        <a href="{{ route('works.edit', ['work' => $work->id]) }}"
+                                            class="btn btn-outline-success  btn-block ">Изменить</a>
                                         <input type="submit" class="btn btn-outline-danger btn-block " value="Удалить">
                                     </div>
                                 </form>
@@ -77,8 +79,8 @@
                 <thead>
                     <tr>
                         <th class="col-0" scope="col">#</th>
-                        <th class="col-2" scope="col">Наименование группы</th>
-                        <th class="col-10 text-center"scope="col"></th>
+                        <th class="col-3" scope="col">Наименование группы</th>
+                        <th class="col-9 text-center"scope="col"></th>
 
                     </tr>
                 </thead>
@@ -86,9 +88,16 @@
                     @foreach ($discipline->groups as $group)
                         <tr>
                             <th scope="row">{{ $loop->index + 1 }}</th>
-                            <td>{{ $group->name }}</a></td>
+                            <td>{{ $group->name }}</td>
 
                             <td>
+                                <div class="d-flex">
+                                    <form class="me-3" class="text-center" method="GET"
+                                    action="{{ route('disciplines.showWorks', [$discipline, 'group' => $group])}}">
+                                    @method('GET')
+                                    <input type="submit" class="btn btn-outline-primary "
+                                        value="Оценить группу">
+                                </form>
                                 <form class="text-center" method="POST"
                                     action="{{ route('disciplines.destroyGroup', [$discipline, 'group' => $group]) }}">
                                     @csrf
@@ -96,6 +105,7 @@
                                     <input type="submit" class="btn btn-outline-danger "
                                         value="Отвязать группу от дисциплины">
                                 </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
