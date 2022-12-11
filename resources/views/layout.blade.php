@@ -38,9 +38,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('groups.index') }}">Группы</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('works.create') }}">Сформировать работу</a>
-                    </li>
+
 
 
 

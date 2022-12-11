@@ -100,7 +100,7 @@ class GroupController extends Controller
                 }
             }
         }
-        dd($tableText);
+
         $split   = preg_split('/\s+/', $tableText);
         $groupName = preg_split('/\s+/', $groupName);
         $chunks = array_chunk($split, 3); // Make groups of 3 words
@@ -114,8 +114,7 @@ class GroupController extends Controller
         foreach ($result as $studentName) {
             $student = new Student();
             $student->name=$studentName;
-            $student->group_id=$group->id;
-            $student->save();
+            $group->students()->save($student);
         }
 
         return redirect()->back();

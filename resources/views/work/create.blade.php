@@ -1,9 +1,10 @@
 @extends('layout')
 @section('content')
     <div class="container ">
-        <form action="{{ route('works.store') }}" method="post">
+        <form action="{{ route('works.store')}}" method="post">
             @csrf
             @method('post');
+            <input type="hidden" name="discipline_id" value="{{$discipline_id}}">
             <div class="row text-center">
                 <h2>Формирование работы</h1>
             </div>

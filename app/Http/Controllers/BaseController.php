@@ -2,13 +2,11 @@
 
 
 namespace App\Http\Controllers;
+use App\Services\GroupService;
 
 class BaseController
 {
     public $service;
 
-    public function __construct()
-    {
 
-    }
 }

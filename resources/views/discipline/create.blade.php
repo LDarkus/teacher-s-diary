@@ -1,13 +1,14 @@
 @extends('layout')
 @section('content')
     <div class="container mt-4">
-        <form action="{{ route('disciplines.store') }}" method="post">
+        <form action="{{ route('disciplines.store') }}" class="needs-validation" method="post">
             @csrf
             @method('post')
             <div class="mt-3 w-50">
                 <label for="" class="form-label">Наименование дисциплины</label>
                 <input type="text" class="form-control" name="name" id="" aria-describedby="helpId"
                     placeholder="Введите наименование дисциплины">
+
 
                 <div class="select mt-2">
                     <div>

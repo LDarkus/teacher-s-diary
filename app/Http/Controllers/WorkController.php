@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Discipline;
+use App\Models\Task;
+use App\Models\Work;
 use Illuminate\Http\Request;
+use PhpOffice\PhpWord\Writer\Word2007\Part\Rels;
 
 class WorkController extends Controller
 {
@@ -21,11 +25,12 @@ class WorkController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         $title = "Формирование работы";
+        $discipline_id=$request->input("discipline");
 
-        return view("work.create", ["title"=>$title]);
+        return view("work.create", compact('title','discipline_id'));
     }
 
     /**
@@ -36,7 +41,27 @@ class WorkController extends Controller
      */
     public function store(Request $request)
     {
+
         $tasks = explode("\n", str_replace("\r", "", $request->input("tasks")));
+        $tasks = array_filter($tasks);
+        $work = new Work();
+        $work->discipline_id=$request->input("discipline_id");
+        $work->name=$request->input("nameWork");
+        $work->typeWork=$request->input("typeWork");
+        $work->max_points=$request->input("scoreWork");
+        $work->deadline=$request->input("deadline");
+        $work->save();
+
+        foreach($tasks as $t){
+
+            $task= new Task();
+            $task->name=$t;
+            $work->tasks()->save($task);
+        }
+
+        return redirect()->route("disciplines.show", ["discipline"=>$work->discipline_id]);
+
+
 
     }
 
@@ -57,9 +82,12 @@ class WorkController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Work $work)
     {
-        //
+        $title = "Редактирование работы";
+
+
+        return view("work.edit", compact('title',"work"));
     }
 
     /**
@@ -69,9 +97,24 @@ class WorkController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Work $work)
     {
-        //
+        $tasks = explode("\n", str_replace("\r", "", $request->input("tasks")));
+        $tasks = array_filter($tasks);
+        $work->name=$request->input("nameWork");
+        $work->typeWork=$request->input("typeWork");
+        $work->max_points=$request->input("scoreWork");
+        $work->deadline=$request->input("deadline");
+        $work->save();
+        Task::where("work_id","=",$work->id)->delete();
+        foreach($tasks as $t){
+
+            $task= new Task();
+            $task->name=$t;
+            $work->tasks()->save($task);
+        }
+
+        return redirect()->route("disciplines.show", ["discipline"=>$work->discipline_id]);
     }
 
     /**
@@ -80,8 +123,9 @@ class WorkController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Work $work)
     {
-        //
+        $work->delete();
+        return redirect()->back();
     }
 }

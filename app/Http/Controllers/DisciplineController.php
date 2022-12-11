@@ -18,11 +18,11 @@ class DisciplineController extends Controller
      */
     public function index()
     {
-        $title="Список дисциплин";
+        $title = "Список дисциплин";
+        $disciplines = Discipline::all();
 
-        $disciplines = Discipline::with("groups")->get();
 
-        return view("discipline.index", compact("disciplines","title"));
+        return view("discipline.index", compact("disciplines", "title"));
     }
 
     /**
@@ -32,9 +32,9 @@ class DisciplineController extends Controller
      */
     public function create()
     {
-        $groups=Group::all();
-        $title="Формирование новой дисциплины";
-        return view("discipline.create",compact("title","groups"));
+        $groups = Group::all();
+        $title = "Формирование новой дисциплины";
+        return view("discipline.create", compact("title", "groups"));
     }
 
     /**
@@ -49,19 +49,14 @@ class DisciplineController extends Controller
         $discipline = new Discipline();
 
 
-        $discipline->name=$request->input("name");
+        $discipline->name = $request->input("name");
         $discipline->save();
 
 
-        if($request->groups!=null){
-            foreach($request->groups as $group_id)
-        {
-            $discipline_group= new Discipline_Group();
-            $discipline_group->discipline_id=$discipline->id;
-            $discipline_group->group_id=$group_id;
-            $discipline_group->save();
-
-        }
+        if ($request->groups != null) {
+            foreach ($request->groups as $group_id) {
+                $discipline->groups()->save(Group::find($group_id));
+            }
         }
 
         return redirect()->route("disciplines.index");
@@ -75,8 +70,9 @@ class DisciplineController extends Controller
      */
     public function show(Discipline $discipline)
     {
-        $title="Подробная информация о дисциплине";
-        return view("discipline.show",compact("title","discipline"));
+        $title = "Подробная информация о дисциплине";
+
+        return view("discipline.show", compact("title", "discipline"));
     }
 
     /**
@@ -87,9 +83,9 @@ class DisciplineController extends Controller
      */
     public function edit(Discipline $discipline)
     {
-        $title="Редактирование дисциплины";
-        $groups=Group::all();
-        return view("discipline.edit",compact("discipline","title","groups"));
+        $title = "Редактирование дисциплины";
+        $groups = Group::all();
+        return view("discipline.edit", compact("discipline", "title", "groups"));
     }
 
     /**
@@ -103,16 +99,12 @@ class DisciplineController extends Controller
     {
 
 
-        $discipline->name=$request->input("name");
+        $discipline->name = $request->input("name");
         $discipline->save();
 
         DB::delete('delete from discipline_group where discipline_id = ?', [$discipline->id]);
-        foreach($request->groups as $group_id)
-        {
-            $discipline_group= new Discipline_Group();
-            $discipline_group->discipline_id=$discipline->id;
-            $discipline_group->group_id=$group_id;
-            $discipline_group->save();
+        foreach ($request->groups as $group_id) {
+            $discipline->groups()->save(Group::find($group_id));
 
         }
         return redirect("/");
@@ -133,9 +125,9 @@ class DisciplineController extends Controller
 
     public function destroyGroup(Discipline $discipline, Group $group)
     {
-        dd($group);
-        $group=Group::find($group->id);
-        DB::delete('delete from discipline_group where group_id =? and discipline_id=?', [$group->id,$discipline->id]);
+
+        $group = Group::find($group->id);
+        DB::delete('delete from discipline_group where group_id =? and discipline_id=?', [$group->id, $discipline->id]);
 
         return redirect()->back();
     }
