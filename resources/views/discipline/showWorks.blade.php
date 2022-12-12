@@ -12,10 +12,10 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="col-0" scope="col">#</th>
-                        <th class="col-3 text-center" scope="col">ФИО студента</th>
+                        <th class="" scope="col">#</th>
+                        <th class=" " scope="col">ФИО студента</th>
                         @foreach ($discipline->works as $work)
-                            <th class="col-1 text-center"scope="col">{{ $work->name }}</th>
+                            <th class=""scope="col">{{ $work->name }}</th>
                         @endforeach
                     </tr>
                 </thead>
@@ -25,14 +25,15 @@
                             <th scope="row">{{ $loop->index + 1 }}</th>
                             <td class="">{{ $student->name }}</td>
                             @foreach ($student->completedWorks as $work)
-                                <td class="col-1">
+
+                                <td class="">
 
                                     @if ($work->completed == 0)
                                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                                            data-bs-target="#ModalWindows"> Не сдано</button>
+                                            data-bs-target="#ModalWindows{{$work->id}}"> Не сдано</button>
                                     @else
                                         <button type="button" class="btn btn-success" data-bs-toggle="modal"
-                                            data-bs-target="#ModalWindows"> Cдано</button>
+                                            data-bs-target="#ModalWindows{{$work->id}}"> Cдано</button>
                                     @endif
 
 
@@ -41,7 +42,7 @@
                                     <form action="{{ route('disciplines.updateWork', $work->id) }}" method="post">
                                         @csrf
                                         @method('put')
-                                        <div class="modal fade" id="ModalWindows" data-bs-backdrop="static"
+                                        <div class="modal fade" id="ModalWindows{{$work->id}}" data-bs-backdrop="static"
                                             data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
                                             aria-hidden="true">
                                             <div class="modal-dialog">
@@ -64,12 +65,13 @@
                                                                     </div>
                                                                     <div class="form-check d-flex flex-column">
                                                                         @foreach ($work->tasks as $task)
+
                                                                             <div class="">
-                                                                                <input type="checkbox" id="gridCheck"
+                                                                                <input type="checkbox" id="gridCheck{{$task->taskProgress->id}}"
                                                                                     class="form-check-input" name="tasks[]"
                                                                                     value="{{ $task->id }}"
                                                                                     @if ($task->taskProgress->completed == 1) checked @endif>
-                                                                                <label for="gridCheck"
+                                                                                <label for="gridCheck{{$task->taskProgress->id}}"
                                                                                     class="form-check-label">{{ $task->name }}</label>
                                                                             </div>
                                                                         @endforeach
