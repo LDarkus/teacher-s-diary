@@ -31,7 +31,7 @@
                     <div class="mt-3">
                         <label for="" class="form-label ">Тип работы</label>
                         <select class="form-select form-select-sm" name="typeWork" id="">
-                            <option value="Лабараторная" selected>Лабараторная</option>
+                            <option value="Лабораторная" selected>Лабораторная</option>
                             <option value="Практическая">Практическая</option>
 
                         </select>

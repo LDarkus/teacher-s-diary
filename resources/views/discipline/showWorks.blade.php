@@ -3,7 +3,7 @@
     <div class="container mt-4">
         <div class="row">
             <div class="col-4">
-                <h3>Наименонование группы: </h3>
+                <h3>Наименонование группы: {{$group->name}}</h3>
             </div>
 
         </div>
@@ -14,8 +14,8 @@
                     <tr>
                         <th class="" scope="col">#</th>
                         <th class=" " scope="col">ФИО студента</th>
-                        @foreach ($discipline->works as $work)
-                            <th class=""scope="col">{{ $work->name }}</th>
+                        @foreach ($discipline->works as $completedWork)
+                            <th class=""scope="col">{{ $completedWork->name }}</th>
                         @endforeach
                     </tr>
                 </thead>
@@ -24,32 +24,31 @@
                         <tr>
                             <th scope="row">{{ $loop->index + 1 }}</th>
                             <td class="">{{ $student->name }}</td>
-                            @foreach ($student->completedWorks as $work)
-
+                            @foreach ($student->completedWorks as $completedWork)
                                 <td class="">
 
-                                    @if ($work->completed == 0)
+                                    @if ($completedWork->completed == 0)
                                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                                            data-bs-target="#ModalWindows{{$work->id}}"> Не сдано</button>
+                                            data-bs-target="#ModalWindows{{ $completedWork->id }}"> Не сдано</button>
                                     @else
                                         <button type="button" class="btn btn-success" data-bs-toggle="modal"
-                                            data-bs-target="#ModalWindows{{$work->id}}"> Cдано</button>
+                                            data-bs-target="#ModalWindows{{ $completedWork->id }}"> Cдано</button>
                                     @endif
 
 
                                     <!-- Модальное окно -->
                                     <!-- Модальное окно -->
-                                    <form action="{{ route('disciplines.updateWork', $work->id) }}" method="post">
+                                    <form action="{{ route('disciplines.updateWork', $completedWork->id) }}" method="post">
                                         @csrf
                                         @method('put')
-                                        <div class="modal fade" id="ModalWindows{{$work->id}}" data-bs-backdrop="static"
-                                            data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel"
-                                            aria-hidden="true">
+                                        <div class="modal fade" id="ModalWindows{{ $completedWork->id }}"
+                                            data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+                                            aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="staticBackdropLabel">
-                                                            {{ $work->work->name }}
+                                                            {{ $completedWork->work->name }} ({{$completedWork->work->typeWork}})
                                                         </h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Закрыть"></button>
@@ -64,15 +63,22 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="form-check d-flex flex-column">
-                                                                        @foreach ($work->tasks as $task)
+                                                                        @foreach ($completedWork->tasksProgress as $task)
 
-                                                                            <div class="">
-                                                                                <input type="checkbox" id="gridCheck{{$task->taskProgress->id}}"
+
+
+
+
+
+                                                                        <div class="">
+                                                                                <input type="checkbox"
+                                                                                    id="gridCheck{{ $task->id }}"
                                                                                     class="form-check-input" name="tasks[]"
-                                                                                    value="{{ $task->id }}"
-                                                                                    @if ($task->taskProgress->completed == 1) checked @endif>
-                                                                                <label for="gridCheck{{$task->taskProgress->id}}"
-                                                                                    class="form-check-label">{{ $task->name }}</label>
+                                                                                    value="{{ $task->task_id }}"
+                                                                                    @if ($task->completed == 1) checked @endif>
+                                                                                <label
+                                                                                    for="gridCheck{{ $task->id }}"
+                                                                                    class="form-check-label">{{$task->task->name}}</label>
                                                                             </div>
                                                                         @endforeach
 
@@ -86,7 +92,7 @@
                                                                     сдачи</label>
                                                                 <div class="col-6">
                                                                     <input disabled type="date" class="form-control"
-                                                                        id="inputDate" value="{{ $work->work->deadline }}">
+                                                                        id="inputDate" value="{{ $completedWork->work->deadline }}">
                                                                 </div>
                                                             </div>
                                                             <div class="row mb-2">
@@ -96,7 +102,7 @@
                                                                 <div class="col-6">
                                                                     <input type="date" class="form-control"
                                                                         id="date_of_completion"
-                                                                        @if ($work->date_of_completion != null) value="{{ $work->date_of_completion }}"
+                                                                        @if ($completedWork->date_of_completion != null) value="{{ $completedWork->date_of_completion }}"
                                                                             @else
                                                                             value="{{ date('Y-m-d') }}" @endif
                                                                         name="date_of_completion">
@@ -105,7 +111,7 @@
                                                             <div class="row mb-2">
                                                                 <label for="points"
                                                                     class="col-12 col-form-label">Максимальный балл за
-                                                                    работу: <b>{{ $work->work->max_points }}</b></label>
+                                                                    работу: <b>{{ $completedWork->work->max_points }}</b></label>
                                                             </div>
                                                             <div class="row mb-2">
                                                                 <div class="col-6"><label for="points"
@@ -113,22 +119,22 @@
                                                                         студента:</label></div>
                                                                 <div class="col-6"><input type="text"
                                                                         class="form-control" id="points"
-                                                                        value="{{ $work->points }}" name="points"></div>
+                                                                        value="{{ $completedWork->points }}" name="points"></div>
                                                             </div>
                                                             <div class="row mb-2">
                                                                 <div class="">
                                                                     <label for="comment" class="form-label">Коментарий к
                                                                         работе:</label>
-                                                                    <textarea class="form-control" name="comment" id="comment" rows="3">{{ $work->comment }}</textarea>
+                                                                    <textarea class="form-control" name="comment" id="comment" rows="3">{{ $completedWork->comment }}</textarea>
                                                                 </div>
                                                             </div>
 
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
+                                                        <button type="button" class="btn btn-danger"
                                                             data-bs-dismiss="modal">Закрыть</button>
-                                                        <button type="submit" class="btn btn-primary">Понял</button>
+                                                        <button type="submit" class="btn btn-primary">Оценить работу</button>
                                                     </div>
                                                 </div>
                                             </div>

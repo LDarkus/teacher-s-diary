@@ -32,8 +32,8 @@
                     <div class="mt-3">
                         <label for="" class="form-label ">Тип работы</label>
                         <select class="form-select form-select-sm" name="typeWork" id="">
-                            <option value="Лабараторная" {{ $work->typeWork == 'Лабараторная' ? 'selected' : '' }}>
-                                Лабараторная</option>
+                            <option value="Лабараторная" {{ $work->typeWork == 'Лабораторная' ? 'selected' : '' }}>
+                                Лабораторная</option>
                             <option value="Практическая" {{ $work->typeWork == 'Практическая' ? 'selected' : '' }}>
                                 Практическая</option>
 

@@ -21,9 +21,9 @@ class DisciplineController extends Controller
     {
         $title = "Список дисциплин";
         $disciplines = Discipline::all();
+        $groups= Group::all();
 
-
-        return view("discipline.index", compact("disciplines", "title"));
+        return view("discipline.index", compact("disciplines", "title","groups"));
     }
 
     /**
@@ -98,8 +98,9 @@ class DisciplineController extends Controller
 
         $completedWork->comment = $request->input("comment");
         foreach ($completedWork->tasksProgress as $task) {
+            //dd($tasks_id,$completedWork->tasksProgress);
+            if (isset($tasks_id) && (in_array($task->task_id, $tasks_id))) {
 
-            if (isset($tasks_id) && (in_array($task->id, $tasks_id))) {
                 $task->completed = 1;
             } else {
                 $task->completed = 0;
@@ -111,11 +112,11 @@ class DisciplineController extends Controller
         if (isset($tasks_id) && (count($completedWork->tasksProgress) == count($tasks_id))) {
             $completedWork->points = $request->input("points");
             $completedWork->date_of_completion = $request->input("date_of_completion");
-            $completedWork->completed=1;
+            $completedWork->completed = 1;
         } else {
             $completedWork->points = 0;
             $completedWork->date_of_completion = null;
-            $completedWork->completed=0;
+            $completedWork->completed = 0;
         }
 
 
@@ -149,10 +150,49 @@ class DisciplineController extends Controller
 
 
         $discipline->name = $request->input("name");
-        $d = $discipline->groups()->sync($request->groups);
+        $g = $discipline->groups()->sync($request->groups);
+
+        $groupsUpdata = $g["attached"];
+        $groupsDelete = $g["detached"];
         //Нужно подумать как добавлять в промежуточные таблице при добавлении удалиении группы
 
         $discipline->save();
+
+        if (!empty($groupsUpdata)) {
+            $discipline->refresh();
+            $works = $discipline->works;
+
+
+            foreach ($discipline->groups as $group) {
+                //dd($discipline->groups,$groups,$group);
+                if (in_array($group->id, $groupsUpdata)) {
+
+                    foreach ($group->students as $student) {
+                        $student->works()->sync($works);
+                        foreach ($student->completedWorks as $cWork) {
+
+                            foreach ($cWork->work->tasks as $tId) {
+
+                                DB::insert('insert into task_progress (task_id, work_id) values (?, ?)', [$tId->id, $cWork->id]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!empty($groupsDelete)) {
+
+            foreach ($discipline->groups as $group) {
+                //dd($discipline->groups,$groups,$group);
+
+                if (in_array($group->id, $groupsDelete)) {
+
+                    foreach ($group->students as $student) {
+                        $student->works()->sync(null);
+                    }
+                }
+            }
+        }
 
         return redirect("/");
     }
@@ -175,6 +215,9 @@ class DisciplineController extends Controller
 
         $group = Group::find($group->id);
         DB::delete('delete from discipline_group where group_id =? and discipline_id=?', [$group->id, $discipline->id]);
+        foreach ($group->students as $student) {
+            $student->works()->sync(null);
+        }
 
         return redirect()->back();
     }
