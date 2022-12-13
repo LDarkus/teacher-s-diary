@@ -11,7 +11,7 @@ class CompletedWork extends Model
     protected $fillable = ['work_id'];
     public function tasks()
     {
-        return $this->belongsToMany(Task::class, "task_progress", "work_id", "task_id");
+        return $this->belongsToMany(Task::class, "task_progress", "completed_work_id", "task_id");
     }
     public function work()
     {
@@ -19,6 +19,6 @@ class CompletedWork extends Model
     }
     public function tasksProgress()
     {
-        return $this->hasMany(TaskProgress::class,"work_id");
+        return $this->hasMany(TaskProgress::class,"completed_work_id");
     }
 }

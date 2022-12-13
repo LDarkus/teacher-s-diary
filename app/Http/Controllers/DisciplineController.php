@@ -21,9 +21,9 @@ class DisciplineController extends Controller
     {
         $title = "Список дисциплин";
         $disciplines = Discipline::all();
-        $groups= Group::all();
+        $groups = Group::all();
 
-        return view("discipline.index", compact("disciplines", "title","groups"));
+        return view("discipline.index", compact("disciplines", "title", "groups"));
     }
 
     /**
@@ -161,19 +161,23 @@ class DisciplineController extends Controller
         if (!empty($groupsUpdata)) {
             $discipline->refresh();
             $works = $discipline->works;
-
+            foreach($works as $w)
+            {
+                $works_id[]=$w->id;
+            }
 
             foreach ($discipline->groups as $group) {
                 //dd($discipline->groups,$groups,$group);
                 if (in_array($group->id, $groupsUpdata)) {
 
                     foreach ($group->students as $student) {
-                        $student->works()->sync($works);
+                        $student->works()->attach($works);
                         foreach ($student->completedWorks as $cWork) {
+                            if (in_array($cWork->work->id,$works_id)) {
+                                foreach ($cWork->work->tasks as $tId) {
 
-                            foreach ($cWork->work->tasks as $tId) {
-
-                                DB::insert('insert into task_progress (task_id, work_id) values (?, ?)', [$tId->id, $cWork->id]);
+                                    DB::insert('insert into task_progress (task_id, completed_work_id) values (?, ?)', [$tId->id, $cWork->id]);
+                                }
                             }
                         }
                     }
@@ -188,7 +192,7 @@ class DisciplineController extends Controller
                 if (in_array($group->id, $groupsDelete)) {
 
                     foreach ($group->students as $student) {
-                        $student->works()->sync(null);
+                        $student->works()->detach($discipline->works);
                     }
                 }
             }

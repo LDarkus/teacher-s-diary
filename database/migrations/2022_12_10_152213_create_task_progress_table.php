@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('task_progress', function (Blueprint $table) {
             $table->id();
             $table->foreignId("task_id")->nullable()->constrained("tasks")->onDelete("cascade");
-            $table->foreignId("work_id")->nullable()->constrained("completed_works")->onDelete("cascade");
+            $table->foreignId("completed_work_id")->nullable()->constrained("completed_works")->onDelete("cascade");
             $table->integer('completed')->default(0);
             $table->timestamps();
         });

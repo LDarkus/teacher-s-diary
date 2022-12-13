@@ -59,7 +59,7 @@ class WorkController extends Controller
         $work->deadline=$request->input("deadline");
         $work->save();
         $discipline->refresh();
-        $works=$discipline->works;
+
         foreach($tasks as $t){
 
             $task= new Task();
@@ -71,7 +71,8 @@ class WorkController extends Controller
 
         foreach($discipline->groups as $group){
             foreach($group->students as $student){
-                $student->works()->sync($works);
+
+                $student->works()->attach($work);
                 foreach($student->completedWorks as $cWork){
 
 
@@ -81,7 +82,7 @@ class WorkController extends Controller
                         foreach($tasks_id as $tId)
                         {
 
-                            DB::insert('insert into task_progress (task_id, work_id) values (?, ?)', [$tId->id, $cWork->id]);
+                            DB::insert('insert into task_progress (task_id, completed_work_id) values (?, ?)', [$tId->id, $cWork->id]);
                         }
                     }
 
