@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('student_attendance', function (Blueprint $table) {
+        Schema::create('student_attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId("discipline_id")->nullable()->constrained("disciplines")->onDelete("cascade");
             $table->foreignId("student_id")->nullable()->constrained("students")->onDelete("cascade");
             $table->string("typeWork")->nullable();
             $table->date("date_visit")->nullable();
-            $table->boolean("visit")->nullable();
+            $table->boolean("visit")->default(0);
             $table->timestamps();
 
         });
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('student_attendance');
+        Schema::dropIfExists('student_attendances');
     }
 };

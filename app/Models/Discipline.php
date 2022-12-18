@@ -18,4 +18,7 @@ class Discipline extends Model
     {
         return $this->hasMany(Work::class,"discipline_id");
     }
+    public function student_attendances(){
+        return $this->hasMany(StudentAttendance::class);
+    }
 }

@@ -32,9 +32,10 @@ class WorkController extends Controller
     public function create(Request $request)
     {
         $title = "Формирование работы";
-        $discipline_id=$request->input("discipline");
 
-        return view("work.create", compact('title','discipline_id'));
+        $discipline=Discipline::find($request->input("discipline"));
+
+        return view("work.create", compact('title','discipline'));
     }
 
     /**

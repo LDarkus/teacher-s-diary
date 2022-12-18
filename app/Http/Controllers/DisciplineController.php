@@ -6,6 +6,7 @@ use App\Models\CompletedWork;
 use App\Models\Discipline;
 use App\Models\Discipline_Group;
 use App\Models\Group;
+use App\Models\StudentAttendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Laravel\Ui\Presets\React;
@@ -71,16 +72,21 @@ class DisciplineController extends Controller
      */
     public function show(Discipline $discipline)
     {
+
         $title = "Подробная информация о дисциплине";
         //Сортировка по типам работ
         $discipline = Discipline::with(['works' => function ($query) {
             $query->orderBy('typeWork', 'asc');
         }])->find($discipline->id);
+
+
+
+
         return view("discipline.show", compact("title", "discipline"));
     }
 
 
-    public function showWorks(Discipline $discipline, Group $group)
+    public function showWorks(Discipline $discipline, Group $group, Request $request)
     {
 
         /*  foreach ($group->students as $student) {
@@ -88,8 +94,77 @@ class DisciplineController extends Controller
                 dd($work->work);
             }
         } */
+        $labWorks = $discipline->works->filter(function ($work) {
+            if ($work->typeWork == "Лабораторная")
+                return $work;
+        });
+        $practWorks = $discipline->works->filter(function ($work) {
+            if ($work->typeWork == "Практическая")
+                return $work;
+        });
+        $method = 1;
         $title = "Оцененивание работ студентов";
-        return view("discipline.showWorks", compact("title", "discipline", "group"));
+        $method = $request->input("method");
+
+
+
+
+        return view("discipline.showWorks", compact("title", "discipline", "group", "method", "labWorks", "practWorks"));
+    }
+    public function showStudentAttendances(Discipline $discipline, Group $group, Request $request)
+    {
+
+        /*  foreach ($group->students as $student) {
+            foreach ($student->completedWorks as $work) {
+                dd($work->work);
+            }
+        } */
+
+        $title = "Отметка посещаемости студентов";
+
+        $tab=2;
+        if(empty($request->tab))
+        {
+
+        }
+        else{
+            dd($request->tab);
+        }
+
+        return view("discipline.showAttendanceMark", compact("title", "discipline", "group", "tab"));
+    }
+
+    public function updateStudentAttendances(Discipline $discipline, Group $group, Request $request)
+    {
+
+        /*  foreach ($group->students as $student) {
+            foreach ($student->completedWorks as $work) {
+                dd($work->work);
+            }
+        } */
+
+        $student_attendances=$discipline->student_attendances;
+        $type=$request->type;
+        $marks=StudentAttendance::find($request->input("mark"));
+        foreach($student_attendances as $attendance)
+        {
+            if($group->students->contains($attendance->student_id) && $attendance->typeWork==$type)
+            {
+
+                if($marks->contains($attendance->id))
+                {
+                    $attendance->visit=1;
+                }
+                else{
+                    $attendance->visit=0;
+                }
+                $attendance->save();
+            }
+        }
+
+
+
+        return redirect()->back();
     }
     public function updateWork(Request $request, CompletedWork $completedWork)
     {
@@ -109,14 +184,19 @@ class DisciplineController extends Controller
             $task->save();
         }
 
-        if (isset($tasks_id) && (count($completedWork->tasksProgress) == count($tasks_id))) {
-            $completedWork->points = $request->input("points");
-            $completedWork->date_of_completion = $request->input("date_of_completion");
-            $completedWork->completed = 1;
-        } else {
-            $completedWork->points = 0;
-            $completedWork->date_of_completion = null;
-            $completedWork->completed = 0;
+        if (isset($tasks_id)) {
+
+            if ((count($completedWork->tasksProgress) == count($tasks_id))) {
+                $completedWork->points = $request->input("points");
+                $completedWork->date_of_completion = $request->input("date_of_completion");
+                $completedWork->completed = 1;
+            } elseif ((count($tasks_id) == 0)) {
+                $completedWork->points = 0;
+                $completedWork->date_of_completion = null;
+                $completedWork->completed = 0;
+            } else {
+                $completedWork->completed = 2;
+            }
         }
 
 
@@ -154,16 +234,15 @@ class DisciplineController extends Controller
 
         $groupsUpdata = $g["attached"];
         $groupsDelete = $g["detached"];
-        //Нужно подумать как добавлять в промежуточные таблице при добавлении удалиении группы
+
 
         $discipline->save();
 
         if (!empty($groupsUpdata)) {
             $discipline->refresh();
             $works = $discipline->works;
-            foreach($works as $w)
-            {
-                $works_id[]=$w->id;
+            foreach ($works as $w) {
+                $works_id[] = $w->id;
             }
 
             foreach ($discipline->groups as $group) {
@@ -173,7 +252,7 @@ class DisciplineController extends Controller
                     foreach ($group->students as $student) {
                         $student->works()->attach($works);
                         foreach ($student->completedWorks as $cWork) {
-                            if (in_array($cWork->work->id,$works_id)) {
+                            if (in_array($cWork->work->id, $works_id)) {
                                 foreach ($cWork->work->tasks as $tId) {
 
                                     DB::insert('insert into task_progress (task_id, completed_work_id) values (?, ?)', [$tId->id, $cWork->id]);
@@ -193,6 +272,7 @@ class DisciplineController extends Controller
 
                     foreach ($group->students as $student) {
                         $student->works()->detach($discipline->works);
+                        $student->disciplineAttendances()->detach($discipline);
                     }
                 }
             }
@@ -221,6 +301,7 @@ class DisciplineController extends Controller
         DB::delete('delete from discipline_group where group_id =? and discipline_id=?', [$group->id, $discipline->id]);
         foreach ($group->students as $student) {
             $student->works()->sync(null);
+            $student->disciplineAttendances()->sync(null);
         }
 
         return redirect()->back();

@@ -36,7 +36,7 @@
                             <td>
 
                                 @foreach ($group->disciplines as $discipline)
-                                    <div class="fw-bold me-3 text-nowrap ">{{ $discipline->name }}</div>
+                                    <div class=" me-3 text-nowrap "><a href="{{ route('disciplines.show', $discipline->id) }}">{{ $discipline->name }}</div>
                                 @endforeach
 
 

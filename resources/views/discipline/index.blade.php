@@ -69,8 +69,8 @@
                 <thead>
                     <tr>
                         <th class="col-0" scope="col">#</th>
-                        <th class="col-3" scope="col">Наименование</th>
-                        <th class="col-5 " scope="col">Список групп</th>
+                        <th class="col-5" scope="col">Наименование</th>
+                        <th class="col-3 " scope="col">Список групп</th>
                         <th class="col-4 "scope="col"></th>
 
                     </tr>

@@ -6,7 +6,7 @@ use App\Models\CompletedWork;
 use App\Models\Group;
 use App\Models\Student;
 use Illuminate\Http\Request;
-use Laravel\Ui\Presets\React;
+
 
 class StudentController extends Controller
 {
@@ -42,6 +42,7 @@ class StudentController extends Controller
         $student->group_id = $request->groupId;
         $student->save();
         $student->addInCompletedWork($request->groupId);
+
 
 
 
